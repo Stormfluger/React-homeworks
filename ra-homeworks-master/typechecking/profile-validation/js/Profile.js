@@ -40,14 +40,19 @@ Profile.propTypes = {
     }
   },
   birthday: (props, propName, componentName) => {
-    const value = props[propName];
+    const birthday = props[propName];
+    const isBirthday = (typeof birthday === 'string') &&  /^\d{4}\-\d{2}\-\d{2}$/.test(birthday);
+    const chekBirthday = new Date(birthday) > new Date();
+    
 
-    if(!(/\d{4}-\d{2}-\d{2}/).test(value)) {
+    if(!isBirthday) {
       throw new Error(`Invalid prop ${propName} supplied to ${componentName}. Expecting something like 'YYYY-MM-DD'. Validation failed.`);
+    };
+    if (chekBirthday) {
+      return new Error(`Дата рождения еще не наступила`);
     }
-
+    return null;
   },
-
 }
 
 Profile.defaultProps = {
