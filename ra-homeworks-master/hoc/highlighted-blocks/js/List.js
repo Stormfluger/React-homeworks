@@ -1,28 +1,46 @@
 'use strict';
 
-function itemView() {
-    return class extends React.Component {
-        constructor(props) {
-            super(props);
-            this.props = props;
-        }
+const itemProps = props => props.children;
 
-        render() {
-            if(this.props.views > 1000) {
-                return (<Popular>{this.props.type == 'article'? <Article {...this.props} /> : <Video {...this.props} />}</Popular>)
-            }
-            if(this.props.views < 100) {
-                return (<New>{this.props.type == 'article'? <Article {...this.props} /> : <Video {...this.props} />}</New>)
-            }
-            return this.props.type == 'article'? <Article {...this.props} /> : <Video {...this.props} />;
-        }
+const itemView = (Component) => class itemViewComponent extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {};
     }
-}
 
-const GetItem = itemView();
+    componentWillMount() {
+        const views = this.props.views;
+        let ComponentChoise = itemProps;
+        if (views < 100) ComponentChoise = New;
+        if (views >= 1000) ComponentChoise = Popular;
+        this.setState({ componentChoise: ComponentChoise });
+    }
+    
+    render() {
+        const ComponentChoise = this.state.componentChoise;
+        return (
+            <ComponentChoise>
+                <Component {...this.props} />
+            </ComponentChoise>
+        );
+    }
+};
+
+const ItemViewArticle = itemView(Article);
+const ItemViewVideo = itemView(Video);
 
 const List = props => {
     return props.list.map(item => {
-      return <GetItem {...item}/>
+        switch (item.type) {
+            case 'video':
+                return (
+                    <ItemViewVideo {...item} />
+                );
+
+            case 'article':
+                return (
+                    <ItemViewArticle {...item} />
+                );
+        }
     });
 };
